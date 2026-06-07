@@ -1,0 +1,27 @@
+services:
+  homepage:
+    build: .
+    container_name: homepage
+    restart: unless-stopped
+    # host network so the dashboard is reachable at 100.86.6.101:3001 directly
+    # pid:host so gopsutil reads /proc from the host (accurate CPU/mem/net metrics)
+    network_mode: "host"
+    pid: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # host root mounted so disk.Usage() can stat real host filesystems
+      - /:/host_root:ro,bind
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc:/host/etc:ro
+    environment:
+      - PORT=3001
+#      - HOST=127.0.0.1
+      - TAILNET_DOMAIN=tail2d55cc.ts.net
+      - TZ=Asia/Kolkata
+      # gopsutil reads these to use host /proc instead of container /proc
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+      - HOST_ETC=/host/etc
+      # prefix used when calling disk.Usage() so we stat host paths
+      - DISK_ROOT=/host_root

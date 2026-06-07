@@ -1,0 +1,57 @@
+--- a/web/index.html
++++ b/web/index.html
+@@ -747,6 +747,12 @@
+ 
+ function push(key, val) { hist[key].push(val); hist[key].shift(); }
+ 
++function saveHist() {
++  try { localStorage.setItem('srv-hist', JSON.stringify(hist)); } catch(_) {}
++}
++function savePrev() {
++  try { localStorage.setItem('srv-prev', JSON.stringify({ disk: prevDisk, net: prevNetTotal })); } catch(_) {}
++}
+ 
+ const chartDefaults = {
+   responsive: true,
+@@ -1049,6 +1055,7 @@
+     diskChart.update('none');
+   }
+   prevDisk = { read_bytes: d.disk_io.read_bytes, write_bytes: d.disk_io.write_bytes };
++  saveHist();
+ 
+   // Network I/O delta (KB/s) — aggregate all interfaces
+   const totalSent = d.network.interfaces.reduce((acc, i) => acc + i.bytes_sent, 0);
+@@ -1063,6 +1070,7 @@
+     netChart.update('none');
+   }
+   prevNetTotal = { sent: totalSent, recv: totalRecv };
++  savePrev();
+ }
+ 
+ // ── Main poll loop ─────────────────────────────────────────────
+@@ -1118,6 +1126,25 @@
+ 
+ // ── Init ───────────────────────────────────────────────────────
+ document.addEventListener('DOMContentLoaded', () => {
++  // Restore persisted graph history so charts survive page refreshes
++  try {
++    const saved = localStorage.getItem('srv-hist');
++    if (saved) {
++      const p = JSON.parse(saved);
++      Object.keys(hist).forEach(k => {
++        if (Array.isArray(p[k]) && p[k].length === MAX_PTS) hist[k] = p[k];
++      });
++    }
++  } catch(_) {}
++  try {
++    const saved = localStorage.getItem('srv-prev');
++    if (saved) {
++      const p = JSON.parse(saved);
++      if (p.disk) prevDisk = p.disk;
++      if (p.net)  prevNetTotal = p.net;
++    }
++  } catch(_) {}
++
+   renderServices();
+   renderMediaServices();
+ 
