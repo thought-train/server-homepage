@@ -9,7 +9,7 @@ i liked go, so i built it with go. 1 executable. 1 compiled binary.
 i liked catpuccinmocha and jetbrains mono and lowercase, and so they are present here.
 
 since this is gated behind my tailnet, i can't show you a live deployement ever, but below is a small demo of what it looks like to me:
-[demo of my stats page](./assets/server-homepage.mp4)
+![demo of my stats page](./assets/server-homepage.mp4)
 
 ### todo
 
